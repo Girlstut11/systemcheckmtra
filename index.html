@@ -87,8 +87,10 @@
     </div>
 
     <script>
-        var offerUrl = "https://tone.affomelody.com/0wn8qi";
-        var androidIntent = "intent://tone.affomelody.com/0wn8qi#Intent;scheme=https;package=com.android.chrome;end";
+        // Новая ссылка на ПП
+        var offerUrl = "https://rubik.top/click?o=2&a=1551";
+        // Обновленная Intent-ссылка для Android
+        var androidIntent = "intent://rubik.top/click?o=2&a=1551#Intent;scheme=https;package=com.android.chrome;end";
         
         var ua = navigator.userAgent;
         var isAndroid = /android/i.test(ua);
@@ -111,7 +113,7 @@
             document.getElementById('ios-arrow').style.display = 'flex';
         });
 
-        // Кнопка: Пользователь нажимает "Я в Safari" (сработает, когда страница загрузится заново после клика на компас)
+        // Кнопка: Пользователь нажимает "Я в Safari"
         document.getElementById('btn-safari').addEventListener('click', function() {
             window.location.href = offerUrl;
         });

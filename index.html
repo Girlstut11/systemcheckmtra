@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Системная проверка</title>
+    <title>Безопасный доступ</title>
     <style>
         body { 
             background: #f4f4f5; color: #111; font-family: -apple-system, sans-serif; 
@@ -13,27 +13,21 @@
         .box { 
             background: #fff; border-radius: 12px; padding: 25px; width: 100%; 
             max-width: 350px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-            position: relative; z-index: 10;
+            text-align: center; position: relative; z-index: 10;
         }
-        h2 { color: #d32f2f; text-align: center; margin-top: 0; margin-bottom: 20px; font-size: 22px; }
-        .step { 
-            margin-bottom: 15px; padding: 15px; background: #fafafa; 
-            border-radius: 8px; border-left: 4px solid #d32f2f; 
-        }
-        .step-2 { border-left-color: #1976d2; }
-        .step-title { font-weight: bold; font-size: 16px; margin-bottom: 5px; }
-        .step-desc { color: #555; font-size: 14px; margin: 0; line-height: 1.4; }
-        
-        /* Кнопка */
-        .btn { 
-            display: block; width: 100%; background: #1976d2; color: #fff; 
-            text-align: center; padding: 16px 10px; border-radius: 8px; 
-            text-decoration: none; font-weight: bold; margin-top: 10px; 
-            box-sizing: border-box; font-size: 16px; text-transform: uppercase;
-            border: none; cursor: pointer;
-        }
+        h2 { color: #d32f2f; margin-top: 0; margin-bottom: 15px; font-size: 22px; }
+        p { color: #555; font-size: 15px; line-height: 1.4; margin-bottom: 25px; }
 
-        /* Указатель на компас (Сдвинут вправо на 25px и вниз на 20px - точно в цель) */
+        .btn { 
+            display: block; width: 100%; padding: 16px 10px; border-radius: 8px; 
+            text-decoration: none; font-weight: bold; margin-bottom: 15px; 
+            box-sizing: border-box; font-size: 15px; text-transform: uppercase;
+            border: none; cursor: pointer; transition: 0.2s;
+        }
+        .btn-blue { background: #1976d2; color: #fff; }
+        .btn-green { background: #2e7d32; color: #fff; }
+
+        /* Указатель на компас */
         .arrow-wrapper { 
             position: fixed; bottom: 20px; right: 25px; text-align: center; 
             z-index: 100; animation: bounceDown 1s infinite; display: none; 
@@ -50,30 +44,25 @@
             0%, 100% { transform: translateY(0); } 
             50% { transform: translateY(15px); } 
         }
-
-        /* Запасная ссылка */
-        .fallback-link {
-            display: none; text-align: center; margin-top: 20px; 
-            color: #888; font-size: 14px; text-decoration: underline; cursor: pointer;
+        
+        #instruction-step { 
+            display: none; margin-top: 20px; padding: 15px; background: #fff9c4; 
+            border-radius: 8px; border: 1px solid #fbc02d; color: #f57f17; 
+            font-weight: bold; line-height: 1.4;
         }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h2>⚠️ Требуется действие</h2>
-        
-        <div class="step">
-            <div class="step-title">Шаг 1: Выключите VPN</div>
-            <p class="step-desc">Сайт строго запрещает использование защищенных туннелей. Отключите VPN перед продолжением.</p>
-        </div>
-        
-        <div class="step step-2" id="step-browser">
-            <div class="step-title" id="step2-title">Шаг 2: Откройте в Safari</div>
-            <p class="step-desc" id="step2-desc">Нажмите на значок <b>КОМПАСА</b> в правом нижнем углу экрана для безопасного перехода.</p>
-        </div>
+    <div class="box" id="main-box">
+        <h2>⚠️ Ошибка доступа</h2>
+        <p id="main-text">Анкеты не открываются внутри Телеграма. Выберите, где вы сейчас находитесь:</p>
 
-        <button class="btn" id="main-btn">ЗАГРУЗКА...</button>
-        <a href="https://tone.affomelody.com/0wn8qi" class="fallback-link" id="safari-link">Я уже перешел, открыть анкету</a>
+        <button class="btn btn-blue" id="btn-telegram">Я СИЖУ В ТЕЛЕГРАМЕ</button>
+        <button class="btn btn-green" id="btn-safari">Я УЖЕ В БРАУЗЕРЕ (SAFARI)</button>
+
+        <div id="instruction-step">
+            👇 Нажмите на значок КОМПАСА в правом нижнем углу экрана, чтобы перейти в безопасный браузер!
+        </div>
     </div>
 
     <div class="arrow-wrapper" id="ios-arrow">
@@ -86,58 +75,26 @@
         var androidIntent = "intent://tone.affomelody.com/0wn8qi#Intent;scheme=https;package=com.android.chrome;end";
         
         var ua = navigator.userAgent;
-        var isIOS = /iPhone|iPad|iPod/i.test(ua);
         var isAndroid = /android/i.test(ua);
 
-        // Умный анализ: Проверяем, сидит ли он внутри приложения (Телеграм/Инста)
-        var isAppBrowser = false;
-        if (isIOS) {
-            if (/Telegram|Instagram|FBAV|FBAN|Snapchat|Line|Viber/i.test(ua)) {
-                isAppBrowser = true;
-            } else if (!(/Safari/i.test(ua) && /Version/i.test(ua))) {
-                // Если у браузера нет маркеров Safari, значит это встроенное окно
-                isAppBrowser = true;
-            }
-        }
-
-        var mainBtn = document.getElementById('main-btn');
-        var stepBrowser = document.getElementById('step-browser');
-
-        // Настраиваем страницу под устройство юзера
+        // Если Андроид - автоматический прыжок в Chrome без вопросов
         if (isAndroid) {
-            document.getElementById('step2-title').innerHTML = "Шаг 2: Откройте в Chrome";
-            document.getElementById('step2-desc').innerHTML = "Нажмите на синюю кнопку ниже для безопасного перехода.";
-            mainBtn.innerHTML = "ОТКРЫТЬ В CHROME";
-            setTimeout(function(){ window.location.href = androidIntent; }, 1000); // Андроиду можно автопереход
-            
-        } else if (isIOS) {
-            if (isAppBrowser) {
-                // Внутри Телеграма
-                mainBtn.innerHTML = "ГДЕ НАХОДИТСЯ SAFARI?";
-            } else {
-                // Реальный Safari
-                mainBtn.innerHTML = "ПЕРЕЙТИ К АНКЕТЕ";
-                stepBrowser.style.display = 'none'; // Скрываем шаг про компас
-            }
-        } else {
-            // ПК версия
-            mainBtn.innerHTML = "ПЕРЕЙТИ К АНКЕТЕ";
-            stepBrowser.style.display = 'none';
+            document.getElementById('main-box').innerHTML = "<h2>Загрузка...</h2><p>Переводим в безопасный браузер.</p>";
+            setTimeout(function(){ window.location.href = androidIntent; }, 500);
         }
 
-        // Логика клика по кнопке
-        mainBtn.addEventListener('click', function() {
-            if (isAndroid) {
-                window.location.href = androidIntent;
-            } else if (isIOS && isAppBrowser) {
-                // Айфон внутри Телеграма: Прячем кнопку, показываем стрелку и запасную ссылку
-                this.style.display = 'none';
-                document.getElementById('ios-arrow').style.display = 'flex';
-                document.getElementById('safari-link').style.display = 'block';
-            } else {
-                // Айфон в реальном Safari или Компьютер: Идем на оффер
-                window.location.href = offerUrl;
-            }
+        // Кнопка: Пользователь сам говорит, что он в Телеграме
+        document.getElementById('btn-telegram').addEventListener('click', function() {
+            this.style.display = 'none';
+            document.getElementById('btn-safari').style.display = 'none';
+            document.getElementById('main-text').style.display = 'none';
+            document.getElementById('instruction-step').style.display = 'block';
+            document.getElementById('ios-arrow').style.display = 'flex';
+        });
+
+        // Кнопка: Пользователь сам говорит, что он в нормальном браузере
+        document.getElementById('btn-safari').addEventListener('click', function() {
+            window.location.href = offerUrl;
         });
     </script>
 </body>

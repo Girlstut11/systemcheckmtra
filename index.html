@@ -24,9 +24,9 @@
         .step-title { font-weight: bold; font-size: 16px; margin-bottom: 5px; }
         .step-desc { color: #555; font-size: 14px; margin: 0; line-height: 1.4; }
         
-        /* Указатель на компас для Айфона - теперь жестко привязан к низу */
+        /* Указатель на компас сдвинут левее (right: 65px) чтобы попасть ровно в иконку */
         .arrow-wrapper { 
-            position: fixed; bottom: 50px; right: 10px; text-align: center; 
+            position: fixed; bottom: 50px; right: 65px; text-align: center; 
             z-index: 100; animation: bounceDown 1s infinite; display: none; 
             flex-direction: column; align-items: center; 
         }
@@ -42,7 +42,6 @@
             50% { transform: translateY(15px); } 
         }
 
-        /* Кнопка */
         .btn { 
             display: block; width: 100%; background: #1976d2; color: #fff; 
             text-align: center; padding: 16px 10px; border-radius: 8px; 
@@ -52,7 +51,7 @@
     </style>
 </head>
 <body>
-    <div class="box">
+    <div class="box" id="main-content">
         <h2>⚠️ Требуется действие</h2>
         
         <div class="step">
@@ -74,30 +73,43 @@
     </div>
 
     <script>
+        // Твоя партнерская ссылка
+        var offerUrl = "https://tone.affomelody.com/0wn8qi";
+        
         var ua = navigator.userAgent || navigator.vendor || window.opera;
         var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
         var isAndroid = /android/i.test(ua);
         
+        // Жесткая проверка: сидит ли юзер внутри внутреннего браузера Телеграма/Инстаграма?
+        var isTelegram = /Telegram/i.test(ua);
+        var isIOSWebView = isIOS && !(ua.match(/Version\/[\d\.]+.*Safari/)); 
+        var inAppBrowser = isTelegram || isIOSWebView;
+
         var btn = document.getElementById('go-btn');
         var arrow = document.getElementById('ios-arrow');
         var title2 = document.getElementById('step2-title');
         var desc2 = document.getElementById('step2-desc');
+        var mainContent = document.getElementById('main-content');
 
-        if (isIOS) {
-            // АЙФОН: УБИРАЕМ КНОПКУ ПОЛНОСТЬЮ. ПОКАЗЫВАЕМ СТРЕЛКУ.
-            btn.style.display = 'none'; 
-            arrow.style.display = 'flex';
-        } else if (isAndroid) {
-            // АНДРОИД: ОСТАВЛЯЕМ КНОПКУ, КИДАЕМ В CHROME.
+        // ЛОГИКА
+        if (isAndroid) {
+            // 1. АНДРОИД: Кидаем интент в Chrome
             title2.innerHTML = "Шаг 2: Откройте в Chrome";
-            desc2.innerHTML = "Нажмите на синюю кнопку ниже.";
-            
+            desc2.innerHTML = "Загружаем безопасный браузер...";
             var androidIntent = "intent://tone.affomelody.com/0wn8qi#Intent;scheme=https;package=com.android.chrome;end";
             btn.href = androidIntent;
             btn.innerHTML = "ОТКРЫТЬ В CHROME";
-            
-            // Автопереход для Андроида
-            setTimeout(function(){ window.location.href = androidIntent; }, 1000);
+            setTimeout(function(){ window.location.replace(androidIntent); }, 800);
+
+        } else if (isIOS && inAppBrowser) {
+            // 2. АЙФОН + ВНУТРИ ТЕЛЕГРАМА: Показываем стрелку
+            btn.style.display = 'none'; 
+            arrow.style.display = 'flex';
+
+        } else {
+            // 3. АЙФОН УЖЕ В SAFARI ИЛИ КОМПЬЮТЕР: Моментальный редирект!
+            mainContent.style.display = 'none'; // Прячем весь текст, чтобы не моргал
+            window.location.replace(offerUrl); // Перекидываем на анкету
         }
     </script>
 </body>

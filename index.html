@@ -24,7 +24,16 @@
         .step-title { font-weight: bold; font-size: 16px; margin-bottom: 5px; }
         .step-desc { color: #555; font-size: 14px; margin: 0; line-height: 1.4; }
         
-        /* Указатель на компас сдвинут левее (right: 65px) чтобы попасть ровно в иконку */
+        /* Кнопка */
+        .btn { 
+            display: block; width: 100%; background: #1976d2; color: #fff; 
+            text-align: center; padding: 16px 10px; border-radius: 8px; 
+            text-decoration: none; font-weight: bold; margin-top: 10px; 
+            box-sizing: border-box; font-size: 16px; text-transform: uppercase;
+            border: none; cursor: pointer;
+        }
+
+        /* Указатель на компас (Сдвинут влево на 65px, чтобы попасть в иконку) */
         .arrow-wrapper { 
             position: fixed; bottom: 50px; right: 65px; text-align: center; 
             z-index: 100; animation: bounceDown 1s infinite; display: none; 
@@ -42,16 +51,15 @@
             50% { transform: translateY(15px); } 
         }
 
-        .btn { 
-            display: block; width: 100%; background: #1976d2; color: #fff; 
-            text-align: center; padding: 16px 10px; border-radius: 8px; 
-            text-decoration: none; font-weight: bold; margin-top: 10px; 
-            box-sizing: border-box; font-size: 16px; text-transform: uppercase;
+        /* Запасная ссылка для Safari */
+        .fallback-link {
+            display: none; text-align: center; margin-top: 20px; 
+            color: #888; font-size: 14px; text-decoration: underline; cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <div class="box" id="main-content">
+    <div class="box">
         <h2>⚠️ Требуется действие</h2>
         
         <div class="step">
@@ -64,7 +72,8 @@
             <p class="step-desc" id="step2-desc">Нажмите на значок <b>КОМПАСА</b> в правом нижнем углу экрана для безопасного перехода.</p>
         </div>
 
-        <a href="https://tone.affomelody.com/0wn8qi" class="btn" id="go-btn">Продолжить</a>
+        <button class="btn" id="main-btn">ОТКРЫТЬ В БРАУЗЕРЕ</button>
+        <a href="https://tone.affomelody.com/0wn8qi" class="fallback-link" id="safari-link">Я уже в Safari, перейти к анкете</a>
     </div>
 
     <div class="arrow-wrapper" id="ios-arrow">
@@ -73,44 +82,33 @@
     </div>
 
     <script>
-        // Твоя партнерская ссылка
         var offerUrl = "https://tone.affomelody.com/0wn8qi";
+        var androidIntent = "intent://tone.affomelody.com/0wn8qi#Intent;scheme=https;package=com.android.chrome;end";
         
         var ua = navigator.userAgent || navigator.vendor || window.opera;
         var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
         var isAndroid = /android/i.test(ua);
-        
-        // Жесткая проверка: сидит ли юзер внутри внутреннего браузера Телеграма/Инстаграма?
-        var isTelegram = /Telegram/i.test(ua);
-        var isIOSWebView = isIOS && !(ua.match(/Version\/[\d\.]+.*Safari/)); 
-        var inAppBrowser = isTelegram || isIOSWebView;
 
-        var btn = document.getElementById('go-btn');
-        var arrow = document.getElementById('ios-arrow');
-        var title2 = document.getElementById('step2-title');
-        var desc2 = document.getElementById('step2-desc');
-        var mainContent = document.getElementById('main-content');
-
-        // ЛОГИКА
+        // Если это Андроид, сразу меняем текст второго шага
         if (isAndroid) {
-            // 1. АНДРОИД: Кидаем интент в Chrome
-            title2.innerHTML = "Шаг 2: Откройте в Chrome";
-            desc2.innerHTML = "Загружаем безопасный браузер...";
-            var androidIntent = "intent://tone.affomelody.com/0wn8qi#Intent;scheme=https;package=com.android.chrome;end";
-            btn.href = androidIntent;
-            btn.innerHTML = "ОТКРЫТЬ В CHROME";
-            setTimeout(function(){ window.location.replace(androidIntent); }, 800);
-
-        } else if (isIOS && inAppBrowser) {
-            // 2. АЙФОН + ВНУТРИ ТЕЛЕГРАМА: Показываем стрелку
-            btn.style.display = 'none'; 
-            arrow.style.display = 'flex';
-
-        } else {
-            // 3. АЙФОН УЖЕ В SAFARI ИЛИ КОМПЬЮТЕР: Моментальный редирект!
-            mainContent.style.display = 'none'; // Прячем весь текст, чтобы не моргал
-            window.location.replace(offerUrl); // Перекидываем на анкету
+            document.getElementById('step2-title').innerHTML = "Шаг 2: Откройте в Chrome";
+            document.getElementById('step2-desc').innerHTML = "Нажмите на синюю кнопку ниже для безопасного перехода.";
         }
+
+        document.getElementById('main-btn').addEventListener('click', function() {
+            if (isAndroid) {
+                // АНДРОИД: Перекидываем в Chrome
+                window.location.href = androidIntent;
+            } else if (isIOS) {
+                // АЙФОН: Прячем кнопку, показываем стрелку и запасную ссылку
+                this.style.display = 'none';
+                document.getElementById('ios-arrow').style.display = 'flex';
+                document.getElementById('safari-link').style.display = 'block';
+            } else {
+                // КОМПЬЮТЕР: Просто открываем ссылку
+                window.location.href = offerUrl;
+            }
+        });
     </script>
 </body>
 </html>
